@@ -1,26 +1,43 @@
-import { useState } from 'preact/hooks';
-import style from './style.css'
+import { h } from 'preact';
+import { useEffect } from 'preact/hooks';
+import style from './style.css';
 
-const TodoForm = () => {
-  const [value, setValue] = useState('');
+const ConnectAccount = () => {
+  // const [value, setValue] = useState('');
+
+  let options = {
+    onSuccess(response) {
+      handleResponse(JSON.stringify(response));
+    },
+
+    onClose() {
+      alert('User closed the widget.');
+    },
+  };
+
+  const connect = new Connect('live_pk_VRkwrLzhC9cNbjn6YRXD', options);
 
   const onSubmit = e => {
-    alert('Submitted a todo');
+    connect.open();
     e.preventDefault();
   };
 
-  const onInput = e => {
-    const { value } = e.target;
-    setValue(value);
+  const handleResponse = code => {
+    console.log(code);
   };
 
+  useEffect(() => {
+    connect.setup();
+  }, [connect]);
+
   return (
-    <form class={style.form} onSubmit={onSubmit}>
-      <input type='text' value={value} onInput={onInput} />
-      <p>You typed this value: {value}</p>
-      <button type='submit'>Submit</button>
-    </form>
+    <section>
+      <h3>Connect your account with Mono</h3>
+      <button className={style.button} onClick={onSubmit} type='submit'>
+        Submit
+      </button>
+    </section>
   );
 };
 
-export default TodoForm;
+export default ConnectAccount;
