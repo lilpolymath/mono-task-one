@@ -32,7 +32,10 @@ button {
   padding: 16px 32px;
   cursor: pointer;
   border-radius: 24px;
-  box-shadow: 0px 5px 5px rgba(75, 93, 104, 0.1);
+}
+
+button:hover {
+  box-shadow: 0px 4px 24px 8px rgba(75, 93, 104, 0.1);
 }
 
 input {
@@ -50,8 +53,4 @@ input {
 label {
   font-size: 1rem;
   font-weight: 800;
-}
-
-::placeholder {
-  font-size: 1rem;
 }
