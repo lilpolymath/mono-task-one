@@ -15,7 +15,7 @@ const Main = () => {
   // eslint-disable-next-line no-unused-vars
   const errorHandler = () => {};
 
-  const [userId, setUserId] = useState('');
+  // const [userId, setUserId] = useState('');
   const [data, setData] = useState({
     creditHistory: {},
     debitHistory: {},
@@ -143,9 +143,9 @@ const Main = () => {
   }, [data]);
 
   return (
-    <div style={style.form}>
+    <div className={style.container}>
       <form>
-        <label htmlFor='email'>Enter your Email</label>
+        <label htmlFor='email'>Your Email</label>
         <br />
         <input
           type='email'
@@ -169,7 +169,6 @@ const Main = () => {
       <button onClick={() => onSubmit()} type='submit'>
         Connect Acount
       </button>
-      <p>this is your email {fields.amount}</p>
     </div>
   );
 };

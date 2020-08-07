@@ -4,7 +4,6 @@ import { Router } from 'preact-router';
 import Header from './header';
 
 // Code-splitting is automated for routes
-import Connect from '../routes/connect';
 import Main from '../routes/main';
 
 export default class App extends Component {
@@ -33,7 +32,6 @@ export default class App extends Component {
         <Header />
         <Router onChange={this.handleRoute}>
           <Main path='/' />
-          <Connect path='/connect' />
         </Router>
       </div>
     );
