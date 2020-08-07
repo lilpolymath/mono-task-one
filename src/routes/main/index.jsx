@@ -151,6 +151,7 @@ const Main = () => {
           type='email'
           name='email'
           id='username'
+          autoComplete="off"
           onChange={handleFieldChange}
           value={fields.name}
         />
@@ -161,6 +162,7 @@ const Main = () => {
           type='number'
           name='amount'
           id='amount'
+          autoComplete="off"
           onChange={handleFieldChange}
           value={fields.amount}
         />

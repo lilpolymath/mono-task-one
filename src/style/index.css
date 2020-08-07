@@ -1,8 +1,7 @@
 body {
   padding: 24px;
   margin: 0;
-  background: #effdf6;
-  font-family: 'Helvetica Neue', arial, sans-serif;
+  background: rgb(246 250 253);
   font-weight: 400;
   color: #444;
   max-width: 800px;
@@ -11,7 +10,7 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font: 62.5% 'Lato', sans-serif;
+  font: 62.5% 'Avenir', sans-serif;
 }
 
 * {
@@ -23,26 +22,29 @@ body {
 }
 
 button {
-  background-color: #68f3a8;
+  background-color: rgb(104 201 186 / 0.4);
   height: auto;
   border: none;
   width: auto;
-  color: black;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: bold;
   margin: 2rem 0;
   padding: 16px 32px;
   cursor: pointer;
   border-radius: 24px;
+  box-shadow: 0px 5px 5px rgba(75, 93, 104, 0.1);
 }
 
 input {
   width: 325px;
-  height: 40px;
+  height: auto;
   margin: 0.5rem 0 2rem;
   border: none;
   padding: 12px 24px;
   background-color: white;
+  font-size: 1rem;
+  box-shadow: 0px 6px 18px 8px rgba(75, 93, 104, 0.1);
+  border: 2px solid white;
 }
 
 label {
