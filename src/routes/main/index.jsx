@@ -39,15 +39,19 @@ const Main = () => {
     threeMonths: [],
   });
 
-  let options = {
-    onSuccess(response) {
-      console.log('onSuccess response', response);
-      getClientData(response.code);
-    },
-  };
+  let connect;
 
-  // eslint-disable-next-line no-undef
-  const connect = new Connect(`${PUBLIC_KEY}`, options);
+  if (typeof window !== 'undefined') {
+    let options = {
+      onSuccess(response) {
+        console.log('onSuccess response', response);
+        getClientData(response.code);
+      },
+    };
+
+    // eslint-disable-next-line no-undef
+    connect = new Connect(`${PUBLIC_KEY}`, options);
+  }
 
   const getClientData = async code => {
     const getId = resCode => {
