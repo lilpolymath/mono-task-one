@@ -47,7 +47,7 @@ const Main = () => {
   };
 
   // eslint-disable-next-line no-undef
-  const connect = new Connect(PUBLIC_KEY, options);
+  const connect = new Connect(`${PUBLIC_KEY}`, options);
 
   const getClientData = async code => {
     const getId = resCode => {
@@ -136,6 +136,7 @@ const Main = () => {
               )
             );
           })
+          .then(() => connect.close())
           .catch(error => {
             console.log(error);
           });
@@ -150,9 +151,9 @@ const Main = () => {
   };
 
   const onSubmit = e => {
-    e.preventDefault();
     console.log('fields', fields);
     connect.open();
+    e.preventDefault();
   };
 
   useEffect(() => {
@@ -199,7 +200,11 @@ const Main = () => {
           value={fields.amount}
         />
         <br />
-        <button disabled={disabled} onClick={onSubmit} type='submit'>
+        <button
+          disabled={disabled}
+          onClick={() => connect.open()}
+          type='submit'
+        >
           Process Request
         </button>
       </form>
