@@ -39,19 +39,15 @@ const Main = () => {
     threeMonths: [],
   });
 
-  let connect;
+  let options = {
+    onSuccess(response) {
+      console.log('onSuccess response', response);
+      getClientData(response.code);
+    },
+  };
 
-  if (typeof window !== 'undefined') {
-    let options = {
-      onSuccess(response) {
-        console.log('onSuccess response', response);
-        getClientData(response.code);
-      },
-    };
-
-    // eslint-disable-next-line no-undef
-    connect = new Connect(`${PUBLIC_KEY}`, options);
-  }
+  // eslint-disable-next-line no-undef
+  const connect = new Connect(`${PUBLIC_KEY}`, options);
 
   const getClientData = async code => {
     const getId = resCode => {
@@ -155,9 +151,10 @@ const Main = () => {
   };
 
   const onSubmit = e => {
-    console.log('fields', fields);
     connect.open();
     e.preventDefault();
+
+    console.log('gets here');
   };
 
   useEffect(() => {
@@ -172,7 +169,6 @@ const Main = () => {
       fields.amount.length > 3
     ) {
       setDisabled(false);
-      console.log(fields);
     }
   }, [fields]);
 
@@ -183,13 +179,13 @@ const Main = () => {
   return (
     <div className={style.container}>
       <h4>{response}</h4>
-      <form>
+      <form action='javascript:void(0);'>
         <label htmlFor='email'>Your Email</label>
         <br />
         <input
           type='email'
           name='email'
-          id='username'
+          id='email'
           onChange={handleFieldChange}
           value={fields.name}
         />
@@ -204,14 +200,10 @@ const Main = () => {
           value={fields.amount}
         />
         <br />
-        <button
-          disabled={disabled}
-          onClick={() => connect.open()}
-          type='submit'
-        >
-          Process Request
-        </button>
       </form>
+      <button disabled={disabled} onClick={() => onSubmit()} type='submit'>
+        Process Request
+      </button>
     </div>
   );
 };
