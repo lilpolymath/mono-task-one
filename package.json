@@ -9,6 +9,7 @@
   "scripts": {
     "build": "preact build",
     "serve": "sirv build --port 8080 --cors --single",
+    "start": "npm run serve",
     "dev": "preact watch",
     "lint": "eslint src",
     "test": "jest"
