@@ -151,9 +151,8 @@ const Main = () => {
   };
 
   const onSubmit = e => {
-    connect.open();
     e.preventDefault();
-
+    connect.open();
     console.log('gets here');
   };
 
@@ -179,7 +178,7 @@ const Main = () => {
   return (
     <div className={style.container}>
       <h4>{response}</h4>
-      <form action='javascript:void(0);'>
+      <form onSubmit={() => onSubmit()}>
         <label htmlFor='email'>Your Email</label>
         <br />
         <input
@@ -200,10 +199,10 @@ const Main = () => {
           value={fields.amount}
         />
         <br />
+        <button disabled={disabled} type='submit'>
+          Process Request
+        </button>
       </form>
-      <button disabled={disabled} onClick={() => onSubmit()} type='submit'>
-        Process Request
-      </button>
     </div>
   );
 };
