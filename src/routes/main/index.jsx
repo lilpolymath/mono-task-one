@@ -47,7 +47,7 @@ const Main = () => {
   };
 
   // eslint-disable-next-line no-undef
-  const connect = new Connect(`${PUBLIC_KEY}`, options);
+  const connect = new Connect('live_pk_VRkwrLzhC9cNbjn6YRXD', options);
 
   const getClientData = async code => {
     const getId = resCode => {
