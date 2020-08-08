@@ -3,6 +3,7 @@ import { useEffect, useState } from 'preact/hooks';
 import style from './style.css';
 import useFormFields from '../../hooks/use-form-fields';
 import creditScore from '../../utils/credit-scoring';
+import { start, end } from '../../utils/date';
 
 const AUTH_URL = 'https://api.withmono.com/account/auth';
 const ACCOUNT_URL = 'https://api.withmono.com/accounts/';
@@ -19,19 +20,6 @@ const Main = () => {
   const [disabled, setDisabled] = useState(true);
 
   const [response, setResponse] = useState(null);
-
-  const date = new Date();
-  const day = date.getDate();
-  const dayFormatted = day.length > 1 ? day : `0${day}`;
-  const dayPadded = day.length > 1 ? day : `0${day - 1}`;
-
-  const month = date.getMonth();
-  const monthFormatted = month.length > 1 ? month : `0${month}`;
-  const monthPadded = month.length > 1 ? month : `0${month + 1}`;
-
-  const year = date.getFullYear();
-  const end = `${dayFormatted}-${monthPadded}-${year}`;
-  const start = `${dayPadded}-${monthFormatted}-${year}`;
 
   const [data, setData] = useState({
     transactionHistory: [],
