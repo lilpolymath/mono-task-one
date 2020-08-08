@@ -1,6 +1,10 @@
+* {
+  margin: 0;
+  box-sizing: border-box;
+}
+
 body {
   padding: 24px;
-  margin: 0;
   background: rgb(246 250 253);
   font-weight: 400;
   color: #444;
@@ -11,10 +15,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font: 62.5% 'Avenir', sans-serif;
-}
-
-* {
-  box-sizing: border-box;
 }
 
 #app {
@@ -28,7 +28,7 @@ button {
   width: auto;
   font-size: 1rem;
   font-weight: bold;
-  margin: 2rem 0;
+  margin: 2rem auto;
   padding: 16px 32px;
   cursor: pointer;
   border-radius: 24px;

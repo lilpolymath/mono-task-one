@@ -2,34 +2,46 @@ import { h } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import style from './style.css';
 import useFormFields from '../../hooks/use-form-fields';
+import creditScore from '../../utils/credit-scoring';
 
 const AUTH_URL = 'https://api.withmono.com/account/auth';
 const ACCOUNT_URL = 'https://api.withmono.com/accounts/';
 
+const SERCET_KEY = process.env.PREACT_APP_MONO_SECRET_KEY;
+
 const Main = () => {
   const [fields, handleFieldChange] = useFormFields({
     email: '',
-    amount: '',
+    amount: 5000,
   });
 
-  // eslint-disable-next-line no-unused-vars
-  const errorHandler = () => {};
+  const [disabled, setDisabled] = useState(true);
 
-  // const [userId, setUserId] = useState('');
+  const [response, setResponse] = useState();
+
+  const date = new Date();
+  const day = date.getDate();
+  const dayFormatted = day.length > 1 ? day : `0${day}`;
+  const dayPadded = day.length > 1 ? day : `0${day - 1}`;
+
+  const month = date.getMonth();
+  const monthFormatted = month.length > 1 ? month : `0${month}`;
+  const monthPadded = month.length > 1 ? month : `0${month + 1}`;
+
+  const year = date.getFullYear();
+  const end = `${dayFormatted}-${monthPadded}-${year}`;
+  const start = `${dayPadded}-${monthFormatted}-${year}`;
+
   const [data, setData] = useState({
-    creditHistory: {},
-    debitHistory: {},
+    transactionHistory: [],
     balance: 0,
+    threeMonths: [],
   });
 
   let options = {
     onSuccess(response) {
       console.log('onSuccess response', response);
       getClientData(response.code);
-    },
-
-    onClose() {
-      alert('User closed the widget.');
     },
   };
 
@@ -42,7 +54,7 @@ const Main = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'mono-sec-key': 'live_sk_56VLRHZhF7dQxS0n9NBZ',
+          'mono-sec-key': `${SERCET_KEY}`,
         },
         body: JSON.stringify({ code: resCode }),
       })
@@ -58,20 +70,23 @@ const Main = () => {
 
     const transactionDetails = async id => {
       const USER_BASE_URL = `${ACCOUNT_URL}${id}`;
-      console.log(USER_BASE_URL);
+      console.log('user base url', USER_BASE_URL);
+
+      const TRANS_URL = `${USER_BASE_URL}/transactions/?filter&start=${start}&end=${end}`;
+      console.log('transaction url', TRANS_URL);
 
       const getBalance = async () => {
         return await fetch(`${USER_BASE_URL}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'mono-sec-key': 'live_sk_56VLRHZhF7dQxS0n9NBZ',
+            'mono-sec-key': `${SERCET_KEY}`,
           },
         })
           .then(response => response.json())
           .then(res =>
             setData(prevState => {
-              return { ...prevState, balance: res };
+              return { ...prevState, balance: res.balance };
             })
           )
           .catch(error => {
@@ -79,18 +94,18 @@ const Main = () => {
           });
       };
 
-      const getCredits = async () => {
+      const getRecentCredits = async () => {
         return await fetch(`${USER_BASE_URL}/credits`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'mono-sec-key': 'live_sk_56VLRHZhF7dQxS0n9NBZ',
+            'mono-sec-key': `${SERCET_KEY}`,
           },
         })
           .then(response => response.json())
           .then(res =>
             setData(prevState => {
-              return { ...prevState, creditHistory: res };
+              return { ...prevState, threeMonths: res.history.slice(0, 3) };
             })
           )
           .catch(error => {
@@ -98,29 +113,36 @@ const Main = () => {
           });
       };
 
-      const getDebits = async () => {
-        console.log(`${USER_BASE_URL}/debits`);
-        return await fetch(`${USER_BASE_URL}/debits`, {
+      const getAllTransactions = async () => {
+        return await fetch(`${TRANS_URL}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'mono-sec-key': 'live_sk_56VLRHZhF7dQxS0n9NBZ',
+            'mono-sec-key': `${SERCET_KEY}`,
           },
         })
           .then(response => response.json())
-          .then(res =>
+          .then(res => {
             setData(prevState => {
-              return { ...prevState, debitHistory: res };
-            })
-          )
+              return { ...prevState, transactionHistory: res.data };
+            });
+            setResponse(
+              creditScore(
+                fields.amount,
+                data.balance,
+                data.threeMonths,
+                data.transactionHistory
+              )
+            );
+          })
           .catch(error => {
             console.log(error);
           });
       };
 
       await getBalance()
-        .then(getCredits())
-        .then(getDebits());
+        .then(() => getRecentCredits())
+        .then(() => getAllTransactions());
     };
 
     await getId(code);
@@ -130,8 +152,6 @@ const Main = () => {
     console.log('fields', fields);
     connect.open();
     e.preventDefault();
-    // if (fields.email.length > 0 && fields.amount > 1000) {
-    // }
   };
 
   useEffect(() => {
@@ -142,8 +162,21 @@ const Main = () => {
     console.log(data);
   }, [data]);
 
+  useEffect(() => {
+    if (
+      fields.email.match(
+        /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+      ) &&
+      fields.amount.length > 3
+    ) {
+      setDisabled(false);
+      console.log(fields);
+    }
+  }, [fields]);
+
   return (
     <div className={style.container}>
+      <h4>{response}</h4>
       <form>
         <label htmlFor='email'>Your Email</label>
         <br />
@@ -151,7 +184,6 @@ const Main = () => {
           type='email'
           name='email'
           id='username'
-          autoComplete="off"
           onChange={handleFieldChange}
           value={fields.name}
         />
@@ -162,15 +194,14 @@ const Main = () => {
           type='number'
           name='amount'
           id='amount'
-          autoComplete="off"
           onChange={handleFieldChange}
           value={fields.amount}
         />
         <br />
+        <button disabled={disabled} onClick={onSubmit} type='submit'>
+          Process Request
+        </button>
       </form>
-      <button onClick={() => onSubmit()} type='submit'>
-        Connect Acount
-      </button>
     </div>
   );
 };
