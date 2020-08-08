@@ -42,7 +42,7 @@ const creditScore = (request, balance, threeMonths, transactionRecord) => {
 
   const result = score * request;
   const eligible = `You are eligible to borrow up to #${result}.`;
-  const ineligible = `You are currently unable to borrow ${request} at the moment. You can only borrow up to #${result ||
+  const ineligible = `You are currently unable to borrow #${request} at the moment. You can only borrow up to #${result ||
     0}.`;
 
   if (result > request) {

@@ -54,3 +54,7 @@ label {
   font-size: 1rem;
   font-weight: 800;
 }
+
+form {
+  margin: 2rem 0;
+}

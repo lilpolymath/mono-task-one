@@ -41,13 +41,12 @@ const Main = () => {
 
   let options = {
     onSuccess(response) {
-      console.log('onSuccess response', response);
       getClientData(response.code);
     },
   };
 
   // eslint-disable-next-line no-undef
-  const connect = new Connect('live_pk_VRkwrLzhC9cNbjn6YRXD', options);
+  const connect = new Connect(`${PUBLIC_KEY}`, options);
 
   const getClientData = async code => {
     const getId = resCode => {
@@ -61,8 +60,8 @@ const Main = () => {
       })
         .then(response => response.json())
         .then(res => {
-          console.log('Response', res);
           transactionDetails(res.id);
+          connect.close();
         })
         .catch(error => {
           console.log(error);
@@ -71,10 +70,8 @@ const Main = () => {
 
     const transactionDetails = async id => {
       const USER_BASE_URL = `${ACCOUNT_URL}${id}`;
-      console.log('user base url', USER_BASE_URL);
 
       const TRANS_URL = `${USER_BASE_URL}/transactions/?filter&start=${start}&end=${end}`;
-      console.log('transaction url', TRANS_URL);
 
       const getBalance = async () => {
         return await fetch(`${USER_BASE_URL}`, {
@@ -136,7 +133,6 @@ const Main = () => {
               )
             );
           })
-          .then(() => connect.close())
           .catch(error => {
             console.log(error);
           });
@@ -152,13 +148,13 @@ const Main = () => {
 
   const onSubmit = e => {
     e.preventDefault();
+    console.log('fields');
     connect.open();
-    console.log('gets here');
   };
 
   useEffect(() => {
     connect.setup();
-  }, []);
+  }, [connect]);
 
   useEffect(() => {
     if (
@@ -171,14 +167,10 @@ const Main = () => {
     }
   }, [fields]);
 
-  useEffect(() => {
-    response !== null && alert(response);
-  }, [response]);
-
   return (
     <div className={style.container}>
-      <h4>{response}</h4>
-      <form onSubmit={() => onSubmit()}>
+      <h2 className={style.response}>{response}</h2>
+      <form onSubmit={onSubmit}>
         <label htmlFor='email'>Your Email</label>
         <br />
         <input
