@@ -20,10 +20,11 @@ const Main = () => {
   const [disabled, setDisabled] = useState(true);
 
   const [response, setResponse] = useState(null);
+  const [id, setId] = useState(null);
 
   const [data, setData] = useState({
     transactionHistory: [],
-    balance: 0,
+    balance: null,
     threeMonths: [],
   });
 
@@ -36,109 +37,134 @@ const Main = () => {
   // eslint-disable-next-line no-undef
   const connect = new Connect(`${PUBLIC_KEY}`, options);
 
-  const getClientData = async code => {
-    const getId = resCode => {
-      return fetch(`${AUTH_URL}`, {
-        method: 'POST',
+  const getClientData = async resCode => {
+    return await fetch(`${AUTH_URL}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'mono-sec-key': `${SERCET_KEY}`,
+      },
+      body: JSON.stringify({ code: resCode }),
+    })
+      .then(response => response.json())
+      .then(res => {
+        // setId(res.id);
+        transactionDetails(res.id);
+        connect.close();
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
+  const transactionDetails = id => {
+    const USER_BASE_URL = `${ACCOUNT_URL}${id}`;
+
+    const TRANS_URL = `${USER_BASE_URL}/transactions/?filter&start=${start}&end=${end}`;
+
+    console.log(TRANS_URL, USER_BASE_URL);
+    const getBalance = async () => {
+      const res = await fetch(`${USER_BASE_URL}`, {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'mono-sec-key': `${SERCET_KEY}`,
         },
-        body: JSON.stringify({ code: resCode }),
       })
-        .then(response => response.json())
-        .then(res => {
-          transactionDetails(res.id);
-          connect.close();
+        .then(response => {
+          return response.json();
         })
         .catch(error => {
           console.log(error);
         });
+
+      console.log(res);
+
+      return res;
     };
 
-    const transactionDetails = async id => {
-      const USER_BASE_URL = `${ACCOUNT_URL}${id}`;
-
-      const TRANS_URL = `${USER_BASE_URL}/transactions/?filter&start=${start}&end=${end}`;
-
-      const getBalance = async () => {
-        return await fetch(`${USER_BASE_URL}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'mono-sec-key': `${SERCET_KEY}`,
-          },
+    const getRecentCredits = async () => {
+      const res = await fetch(`${USER_BASE_URL}/credits`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'mono-sec-key': `${SERCET_KEY}`,
+        },
+      })
+        .then(response => {
+          return response.json();
         })
-          .then(response => response.json())
-          .then(res =>
-            setData(prevState => {
-              return { ...prevState, balance: res.balance };
-            })
-          )
-          .catch(error => {
-            console.log(error);
-          });
-      };
+        .catch(error => {
+          console.log(error);
+        });
 
-      const getRecentCredits = async () => {
-        return await fetch(`${USER_BASE_URL}/credits`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'mono-sec-key': `${SERCET_KEY}`,
-          },
-        })
-          .then(response => response.json())
-          .then(res =>
-            setData(prevState => {
-              return { ...prevState, threeMonths: res.history.slice(0, 3) };
-            })
-          )
-          .catch(error => {
-            console.log(error);
-          });
-      };
-
-      const getAllTransactions = async () => {
-        return await fetch(`${TRANS_URL}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'mono-sec-key': `${SERCET_KEY}`,
-          },
-        })
-          .then(response => response.json())
-          .then(res => {
-            setData(prevState => {
-              return { ...prevState, transactionHistory: res.data };
-            });
-            setResponse(
-              creditScore(
-                fields.amount,
-                data.balance,
-                data.threeMonths,
-                data.transactionHistory
-              )
-            );
-          })
-          .catch(error => {
-            console.log(error);
-          });
-      };
-
-      await getBalance()
-        .then(() => getRecentCredits())
-        .then(() => getAllTransactions());
+      console.log('credit', data);
+      return res;
     };
 
-    await getId(code);
+    const getAllTransactions = async () => {
+      const res = await fetch(`${TRANS_URL}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'mono-sec-key': `${SERCET_KEY}`,
+        },
+      })
+        .then(response => {
+          return response.json();
+        })
+        .catch(error => {
+          console.log(error);
+        });
+
+      console.log(res);
+
+      console.log('all', data);
+
+      return res;
+    };
+
+    Promise.all([getBalance(), getRecentCredits(), getAllTransactions()]).then(
+      values => {
+        setData(prevState => {
+          return {
+            ...prevState,
+            balance: values[0].balance,
+            threeMonths:
+              (values[1].history && values[1].history.slice(0, 3)) || [],
+            transactionHistory: values[2].data,
+          };
+        });
+      }
+    );
+
+    if (
+      fields.amount &&
+      data.balance &&
+      data.threeMonth &&
+      data.transactionHistory
+    ) {
+      const result = creditScore(
+        fields.amount,
+        data.balance,
+        data.threeMonths,
+        data.transactionHistory
+      );
+      console.log(result);
+      console.log(data);
+    }
   };
 
   const onSubmit = e => {
     e.preventDefault();
     console.log('fields');
-    connect.open();
+    // connect.open();
+    transactionDetails('5f2d763bb7f60b0db8f9a84a');
   };
+
+  useEffect(() => {
+    console.log(data);
+  }, [data]);
 
   useEffect(() => {
     connect.setup();
@@ -154,6 +180,22 @@ const Main = () => {
       setDisabled(false);
     }
   }, [fields]);
+
+  useEffect(() => {
+    if (
+      (fields.amount && data.threeMonth && data.transactionHistory) ||
+      data.balance === 0
+    ) {
+      const result = creditScore(
+        fields.amount,
+        data.balance,
+        data.threeMonths,
+        data.transactionHistory
+      );
+      console.log(result);
+      console.log(data);
+    }
+  }, [data, fields]);
 
   return (
     <div className={style.container}>
