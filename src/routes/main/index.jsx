@@ -78,8 +78,6 @@ const Main = () => {
           console.log(error);
         });
 
-      console.log(res);
-
       return res;
     };
 
@@ -98,7 +96,6 @@ const Main = () => {
           console.log(error);
         });
 
-      console.log('credit', data);
       return res;
     };
 
@@ -117,10 +114,6 @@ const Main = () => {
           console.log(error);
         });
 
-      console.log(res);
-
-      console.log('all', data);
-
       return res;
     };
 
@@ -137,34 +130,12 @@ const Main = () => {
         });
       }
     );
-
-    if (
-      fields.amount &&
-      data.balance &&
-      data.threeMonth &&
-      data.transactionHistory
-    ) {
-      const result = creditScore(
-        fields.amount,
-        data.balance,
-        data.threeMonths,
-        data.transactionHistory
-      );
-      console.log(result);
-      console.log(data);
-    }
   };
 
   const onSubmit = e => {
     e.preventDefault();
-    console.log('fields');
-    // connect.open();
-    transactionDetails('5f2d763bb7f60b0db8f9a84a');
+    connect.open();
   };
-
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
 
   useEffect(() => {
     connect.setup();
@@ -192,8 +163,7 @@ const Main = () => {
         data.threeMonths,
         data.transactionHistory
       );
-      console.log(result);
-      console.log(data);
+      setResponse(result);
     }
   }, [data, fields]);
 
